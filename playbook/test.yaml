@@ -1,0 +1,31 @@
+---
+- hosts: all
+
+  tasks:
+     - debug: msg="[env HOME] >> {{ lookup('env','HOME') }}"
+
+     - debug: msg="[motd lines] >> {{ item }}"
+       with_lines:
+         - cat /etc/motd
+
+     - debug: msg="[date pipe] >> {{ lookup('pipe','date') }}"
+
+     - name: Fetch IP info from ipinfo.io
+       uri:
+         url: http://ipinfo.io/json
+         return_content: yes
+       register: ipinfo_json
+
+     - set_fact:
+         ipinfo: "{{ipinfo_json.content|from_json}}"
+
+     - debug: msg="The whole response {{ ipinfo }}"
+
+     - debug: msg="Here is my public ip {{ ipinfo['ip'] }}"
+
+     # outputs the cartesian product of the supplied lists
+     - debug: msg="[cartesian] >> {{item}}"
+       with_cartesian:
+            - list1
+            - list2
+            - list3
